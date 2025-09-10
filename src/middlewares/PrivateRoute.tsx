@@ -3,7 +3,6 @@ import { useAuth } from "../hooks/useAuth";
 
 export const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 	const { user, loading } = useAuth();
-	console.log(user);
 
 	if (loading) {
 		return <div>Loading...</div>;

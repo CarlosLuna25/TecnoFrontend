@@ -1,5 +1,9 @@
 // import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { getMunicipalities, getStates } from "../../services/state";
+
 export default function Home() {
 	const stats = [
 		{
@@ -125,6 +129,15 @@ export default function Home() {
 	// 	{ name: "Gastos", value: 4200, color: "#ef4444", percentage: 22 },
 	// 	{ name: "Por Cobrar", value: 2500, color: "#f59e0b", percentage: 13 },
 	// ];
+	const getStatesAndMunicipalities = async () => {
+		const states = await getStates();
+		const municipalities = await getMunicipalities();
+		return { states, municipalities };
+	};
+
+	useEffect(() => {
+		getStatesAndMunicipalities();
+	}, []);
 
 	return (
 		<div className="space-y-8">
@@ -364,7 +377,10 @@ export default function Home() {
 							</h3>
 						</div>
 						<div className="p-6 space-y-3">
-							<button className="w-full flex items-center space-x-3 p-3 text-left rounded-lg hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 group">
+							<Link
+								to="/dashboard/clients/new"
+								className="w-full flex items-center space-x-3 p-3 text-left rounded-lg hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 group"
+							>
 								<div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600 group-hover:bg-teal-200">
 									<svg
 										className="w-5 h-5"
@@ -381,7 +397,7 @@ export default function Home() {
 									</svg>
 								</div>
 								<span className="font-medium">Agregar Cliente</span>
-							</button>
+							</Link>
 							<button className="w-full flex items-center space-x-3 p-3 text-left rounded-lg hover:bg-orange-50 hover:text-orange-700 transition-colors duration-200 group">
 								<div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 group-hover:bg-orange-200">
 									<svg

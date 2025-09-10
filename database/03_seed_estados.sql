@@ -1,0 +1,27 @@
+-- Seeder para los estados de Venezuela
+INSERT INTO estados (codigo, nombre, capital) VALUES
+('AM', 'Amazonas', 'Puerto Ayacucho'),
+('AN', 'Anzoátegui', 'Barcelona'),
+('AP', 'Apure', 'San Fernando de Apure'),
+('AR', 'Aragua', 'Maracay'),
+('BA', 'Barinas', 'Barinas'),
+('BO', 'Bolívar', 'Ciudad Bolívar'),
+('CA', 'Carabobo', 'Valencia'),
+('CO', 'Cojedes', 'San Carlos'),
+('DA', 'Delta Amacuro', 'Tucupita'),
+('DC', 'Distrito Capital', 'Caracas'),
+('FA', 'Falcón', 'Coro'),
+('GU', 'Guárico', 'San Juan de los Morros'),
+('LA', 'Lara', 'Barquisimeto'),
+('ME', 'Mérida', 'Mérida'),
+('MI', 'Miranda', 'Los Teques'),
+('MO', 'Monagas', 'Maturín'),
+('NE', 'Nueva Esparta', 'La Asunción'),
+('PO', 'Portuguesa', 'Guanare'),
+('SU', 'Sucre', 'Cumaná'),
+('TA', 'Táchira', 'San Cristóbal'),
+('TR', 'Trujillo', 'Trujillo'),
+('VA', 'Vargas', 'La Guaira'),
+('YA', 'Yaracuy', 'San Felipe'),
+('ZU', 'Zulia', 'Maracaibo')
+ON CONFLICT (codigo) DO NOTHING;

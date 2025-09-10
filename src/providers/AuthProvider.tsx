@@ -12,7 +12,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		// Verificar sesión activa al cargar la app
 		const getSession = async () => {
 			const { data } = await supabase.auth.getSession();
-			console.log("sesion", data);
 			setUser(data.session?.user ?? null);
 			setUserData({
 				id: data.session?.user?.id ?? "",
