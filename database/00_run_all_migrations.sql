@@ -28,10 +28,27 @@
 -- 9. Configurar políticas de Supabase Storage
 \i 09_setup_storage_policies.sql
 
+-- 10. Crear tabla de categorías
+\i 10_create_categories_table.sql
+
+-- 11. Crear tabla de transacciones
+\i 11_create_transactions_table.sql
+
+-- 12. Insertar categorías predeterminadas
+\i 12_seed_categories.sql
+
+-- 13. Crear vistas y funciones auxiliares
+\i 13_create_views_and_functions.sql
+
+-- 14. Configurar políticas de seguridad (RLS)
+\i 14_setup_rls_policies.sql
+
 -- Verificar que todo se insertó correctamente
 SELECT 'Estados insertados: ' || COUNT(*) FROM estados;
 SELECT 'Municipios insertados: ' || COUNT(*) FROM municipios;
-SELECT 'Tabla clientes creada exitosamente' as status;
+SELECT 'Clientes: Tabla creada exitosamente' as status;
+SELECT 'Categorías insertadas: ' || COUNT(*) FROM categories;
+SELECT 'Transacciones: Tabla creada exitosamente' as status;
 
 -- Verificar relaciones
 SELECT 
@@ -41,3 +58,14 @@ FROM estados e
 LEFT JOIN municipios m ON e.id = m.estado_id
 GROUP BY e.id, e.nombre
 ORDER BY e.nombre;
+
+-- Verificar categorías por tipo
+SELECT 
+    tipo,
+    COUNT(*) as total_categorias
+FROM categories
+GROUP BY tipo
+ORDER BY tipo;
+
+-- Verificar vistas creadas
+SELECT 'Vistas y funciones creadas exitosamente' as status;

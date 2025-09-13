@@ -7,6 +7,9 @@ import Login from "./pages/Auth/Login";
 import ClientsList from "./pages/Clients/ClientsList";
 import NewClient from "./pages/Clients/NewClient";
 import EditClient from "./pages/Clients/EditClient";
+import ClientDetail from "./pages/Clients/ClientDetail";
+import Settings from "./pages/Settings";
+import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
 	return (
@@ -31,6 +34,7 @@ export default function App() {
 				<Route path="clients" element={<ClientsList />} />
 				<Route path="clients/new" element={<NewClient />} />
 				<Route path="clients/:id" element={<EditClient />} />
+				<Route path="clients/detail/:id" element={<ClientDetail />} />
 				{/* presupuestos */}
 				{/* <Route path="budgets" element={<BudgetsList />} />
 				<Route path="budgets/new" element={<NewBudget />} />
@@ -39,8 +43,11 @@ export default function App() {
 				{/* <Route path="expenses" element={<ExpensesList />} />
 				<Route path="expenses/new" element={<NewExpense />} />
 				<Route path="expenses/:id" element={<EditExpense />} /> */}
-				<Route path="*" element={<Home />} />
+				{/* settings */}
+				<Route path="settings" element={<Settings />} />
+				<Route path="*" element={<NotFoundPage dashboard={true} />} />
 			</Route>
+			<Route path="*" element={<NotFoundPage dashboard={false} />} />
 		</Routes>
 	);
 }

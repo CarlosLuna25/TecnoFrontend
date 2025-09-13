@@ -387,10 +387,20 @@ export default function ClientsList() {
 												</div>
 												{/* Información del cliente */}
 												<div>
-													<div className="text-sm font-medium text-gray-900">
+													<div
+														className="text-sm font-medium text-gray-900 cursor-pointer"
+														onClick={() =>
+															navigate(`/dashboard/clients/detail/${client.id}`)
+														}
+													>
 														{client.nombre}
 													</div>
-													<div className="text-sm text-gray-500 truncate max-w-xs">
+													<div
+														className="text-sm text-gray-500 truncate max-w-xs cursor-pointer"
+														onClick={() =>
+															navigate(`/dashboard/clients/detail/${client.id}`)
+														}
+													>
 														{client.direccion}
 													</div>
 												</div>
