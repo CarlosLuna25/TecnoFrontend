@@ -14,12 +14,20 @@ SELECT
     c.nombre as categoria_nombre,
     c.descripcion as categoria_descripcion,
     c.color as categoria_color,
-    cl.name as cliente_nombre,
-    cl.email as cliente_email,
-    cl.phone as cliente_telefono
+    cl.nombre as cliente_nombre,
+    cl.tipo as cliente_tipo,
+    cl.estado as cliente_estado,
+    cl.presupuesto as cliente_presupuesto,
+    cl.estado_id as cliente_estado_id,
+    cl.municipio_id as cliente_municipio_id,
+    cl.direccion as cliente_direccion,
+    cl.detalles_adicionales as cliente_detalles_adicionales,
+    cl.imagen_url as cliente_imagen_url
+
+
 FROM transactions t
 LEFT JOIN categories c ON t.categoria_id = c.id
-LEFT JOIN clients cl ON t.cliente_id = cl.id
+LEFT JOIN clientes cl ON t.cliente_id = cl.id
 WHERE t.tipo = 'gasto'
 ORDER BY t.fecha DESC, t.created_at DESC;
 
@@ -37,12 +45,18 @@ SELECT
     c.nombre as categoria_nombre,
     c.descripcion as categoria_descripcion,
     c.color as categoria_color,
-    cl.name as cliente_nombre,
-    cl.email as cliente_email,
-    cl.phone as cliente_telefono
+    cl.nombre as cliente_nombre,
+    cl.tipo as cliente_tipo,
+    cl.estado as cliente_estado,
+    cl.presupuesto as cliente_presupuesto,
+    cl.estado_id as cliente_estado_id,
+    cl.municipio_id as cliente_municipio_id,
+    cl.direccion as cliente_direccion,
+    cl.detalles_adicionales as cliente_detalles_adicionales,
+    cl.imagen_url as cliente_imagen_url
 FROM transactions t
 LEFT JOIN categories c ON t.categoria_id = c.id
-LEFT JOIN clients cl ON t.cliente_id = cl.id
+LEFT JOIN clientes cl ON t.cliente_id = cl.id
 WHERE t.tipo = 'ingreso'
 ORDER BY t.fecha DESC, t.created_at DESC;
 

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     fecha DATE NOT NULL DEFAULT CURRENT_DATE,
     categoria_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
     metodo_pago VARCHAR(50) NOT NULL,
-    cliente_id BIGINT REFERENCES clients(id) ON DELETE CASCADE,
+    cliente_id BIGINT REFERENCES clientes(id) ON DELETE CASCADE,
     notas TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -41,17 +41,42 @@ CREATE TRIGGER trigger_update_transactions_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_transactions_updated_at();
 
--- Constraint para validar que el tipo de transacción coincida con el tipo de categoría
-ALTER TABLE transactions 
-ADD CONSTRAINT check_categoria_tipo 
-CHECK (
-    categoria_id IS NULL OR 
-    NOT EXISTS (
-        SELECT 1 FROM categories 
-        WHERE categories.id = categoria_id 
-        AND categories.tipo != transactions.tipo
-    )
-);
+-- Función para validar que el tipo de transacción coincida con el tipo de categoría
+CREATE OR REPLACE FUNCTION validate_categoria_tipo()
+RETURNS TRIGGER AS $$
+DECLARE
+    categoria_tipo VARCHAR(10);
+BEGIN
+    -- Si no hay categoria_id, permitir la inserción/actualización
+    IF NEW.categoria_id IS NULL THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Obtener el tipo de la categoría
+    SELECT tipo INTO categoria_tipo 
+    FROM categories 
+    WHERE id = NEW.categoria_id;
+    
+    -- Si la categoría no existe, lanzar error
+    IF categoria_tipo IS NULL THEN
+        RAISE EXCEPTION 'La categoría con ID % no existe', NEW.categoria_id;
+    END IF;
+    
+    -- Validar que los tipos coincidan
+    IF categoria_tipo != NEW.tipo THEN
+        RAISE EXCEPTION 'El tipo de transacción (%) no coincide con el tipo de categoría (%)', NEW.tipo, categoria_tipo;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para validar consistencia de tipos
+DROP TRIGGER IF EXISTS trigger_validate_categoria_tipo ON transactions;
+CREATE TRIGGER trigger_validate_categoria_tipo
+    BEFORE INSERT OR UPDATE ON transactions
+    FOR EACH ROW
+    EXECUTE FUNCTION validate_categoria_tipo();
 
 -- Comentarios en la tabla
 COMMENT ON TABLE transactions IS 'Tabla para almacenar todas las transacciones (gastos e ingresos)';

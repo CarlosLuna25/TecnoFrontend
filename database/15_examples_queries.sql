@@ -182,7 +182,7 @@ SELECT
     t.tipo,
     t.fecha,
     c.nombre as categoria,
-    cl.name as cliente,
+    cl.nombre as cliente,
     t.metodo_pago
 FROM transactions t
 LEFT JOIN categories c ON t.categoria_id = c.id

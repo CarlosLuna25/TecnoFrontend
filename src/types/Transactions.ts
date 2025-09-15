@@ -2,7 +2,7 @@
 export type TransactionType = "ingreso" | "gasto";
 
 export interface Transaction {
-	id: number;
+	id?: number;
 	descripcion: string;
 	monto: number;
 	tipo: TransactionType;
@@ -14,7 +14,7 @@ export interface Transaction {
 }
 
 export interface Gasto {
-	id: number;
+	id?: number;
 	descripcion: string;
 	monto: number;
 	fecha: string;
@@ -25,13 +25,16 @@ export interface Gasto {
 }
 
 export interface Categoria {
-	id: number;
+	id?: number;
 	nombre: string;
 	descripcion: string;
 	created_at: string;
+	updated_at: string;
+	tipo: TransactionType;
+	color: string;
 }
 export interface Ingreso {
-	id: number;
+	id?: number;
 	descripcion: string;
 	monto: number;
 	fecha: string;

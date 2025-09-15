@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	MdAdd,
 	MdEdit,
@@ -10,22 +10,21 @@ import {
 	MdTrendingUp,
 	MdTrendingDown,
 } from "react-icons/md";
-import type { TransactionType } from "../../types/Transactions";
-
-interface Category {
-	id: number;
-	nombre: string;
-	descripcion: string;
-	tipo: TransactionType;
-	color: string;
-	createdAt: string;
-}
-
+import type { Categoria, TransactionType } from "../../types/Transactions";
+import {
+	getCategories,
+	createCategory,
+	updateCategory,
+	deleteCategory,
+} from "../../services/categoriesService";
+import swal from "sweetalert2";
 export default function CategoriesSettings() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [filterType, setFilterType] = useState<TransactionType | "all">("all");
 	const [showModal, setShowModal] = useState(false);
-	const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+	const [editingCategory, setEditingCategory] = useState<Categoria | null>(
+		null
+	);
 	const [formData, setFormData] = useState({
 		nombre: "",
 		descripcion: "",
@@ -33,65 +32,28 @@ export default function CategoriesSettings() {
 		color: "#3B82F6",
 	});
 
-	// Datos de ejemplo
-	const [categories, setCategories] = useState<Category[]>([
-		{
-			id: 1,
-			nombre: "Reparaciones",
-			descripcion: "Servicios de reparación de equipos electrónicos",
-			tipo: "ingreso",
-			color: "#10B981",
-			createdAt: "2024-01-15",
-		},
-		{
-			id: 2,
-			nombre: "Venta de Equipos",
-			descripcion: "Venta de dispositivos electrónicos nuevos y usados",
-			tipo: "ingreso",
-			color: "#059669",
-			createdAt: "2024-01-20",
-		},
-		{
-			id: 3,
-			nombre: "Accesorios",
-			descripcion: "Venta de accesorios y periféricos",
-			tipo: "ingreso",
-			color: "#0D9488",
-			createdAt: "2024-02-01",
-		},
-		{
-			id: 4,
-			nombre: "Repuestos",
-			descripcion: "Compra de repuestos y componentes",
-			tipo: "gasto",
-			color: "#EF4444",
-			createdAt: "2024-01-10",
-		},
-		{
-			id: 5,
-			nombre: "Herramientas",
-			descripcion: "Adquisición de herramientas de trabajo",
-			tipo: "gasto",
-			color: "#DC2626",
-			createdAt: "2024-02-15",
-		},
-		{
-			id: 6,
-			nombre: "Servicios",
-			descripcion: "Gastos en servicios externos",
-			tipo: "gasto",
-			color: "#B91C1C",
-			createdAt: "2024-03-01",
-		},
-	]);
-
-	const filteredCategories = categories.filter((category) => {
-		const matchesSearch =
-			category.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			category.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesType = filterType === "all" || category.tipo === filterType;
-		return matchesSearch && matchesType;
-	});
+	//
+	const [categories, setCategories] = useState<Categoria[]>([]);
+	const getCategoriesData = async () => {
+		try {
+			const categories = await getCategories();
+			setCategories(categories);
+		} catch (error) {
+			console.error("Error cargando categorías:", error);
+		}
+	};
+	const filteredCategories = useMemo(() => {
+		return categories.filter((category) => {
+			const matchesSearch =
+				category.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				category.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+			const matchesType = filterType === "all" || category.tipo === filterType;
+			return matchesSearch && matchesType;
+		});
+	}, [searchTerm, filterType, categories]);
+	useEffect(() => {
+		getCategoriesData();
+	}, []);
 
 	const colors = [
 		"#10B981",
@@ -116,7 +78,7 @@ export default function CategoriesSettings() {
 		"#059669",
 	];
 
-	const handleOpenModal = (category?: Category) => {
+	const handleOpenModal = (category?: Categoria) => {
 		if (category) {
 			setEditingCategory(category);
 			setFormData({
@@ -151,30 +113,74 @@ export default function CategoriesSettings() {
 	const handleSave = () => {
 		if (editingCategory) {
 			// Editar categoría existente
-			setCategories(
-				categories.map((category) =>
-					category.id === editingCategory.id
-						? { ...category, ...formData }
-						: category
-				)
-			);
+			updateCategory({
+				id: editingCategory.id as number,
+				nombre: formData.nombre,
+				descripcion: formData.descripcion,
+				tipo: formData.tipo,
+				color: formData.color,
+				created_at: editingCategory.created_at,
+				updated_at: new Date().toISOString().split("T")[0],
+			})
+				.then(() => {
+					getCategoriesData();
+				})
+				.catch((error) => {
+					console.error("Error actualizando categoría:", error);
+				});
 		} else {
 			// Crear nueva categoría
-			const newCategory: Category = {
-				id: Math.max(...categories.map((c) => c.id)) + 1,
-				...formData,
-				createdAt: new Date().toISOString().split("T")[0],
-			};
-			setCategories([...categories, newCategory]);
+			createCategory({
+				nombre: formData.nombre,
+				descripcion: formData.descripcion,
+				tipo: formData.tipo,
+				color: formData.color,
+				created_at: new Date().toISOString().split("T")[0],
+				updated_at: new Date().toISOString().split("T")[0],
+			})
+				.then(() => {
+					getCategoriesData();
+				})
+				.catch((error) => {
+					console.error("Error creando categoría:", error);
+				});
 		}
 		handleCloseModal();
 	};
 
-	const handleDelete = (categoryId: number) => {
-		if (confirm("¿Estás seguro de que deseas eliminar esta categoría?")) {
-			setCategories(
-				categories.filter((category) => category.id !== categoryId)
-			);
+	const handleDelete = async (categoryId: number) => {
+		const result = await swal.fire({
+			title: "¿Estás seguro?",
+			text: "¿Estás seguro de que deseas eliminar esta categoría?",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+		});
+		if (result.isConfirmed) {
+			deleteCategory(categoryId)
+				.then(() => {
+					setCategories(categories.filter((cat) => cat.id !== categoryId));
+					swal.fire({
+						title: "Categoría eliminada",
+						text: "Categoría eliminada correctamente",
+						icon: "success",
+					});
+				})
+				.catch((error) => {
+					console.error("Error eliminando categoría:", error);
+					swal.fire({
+						title: "Error",
+						text: "Error eliminando categoría",
+						icon: "error",
+					});
+				});
+		} else {
+			swal.fire({
+				title: "Categoría no eliminada",
+				text: "Categoría no eliminada",
+				icon: "error",
+			});
 		}
 	};
 
@@ -280,7 +286,7 @@ export default function CategoriesSettings() {
 						<div className="flex items-center justify-between">
 							<span className="text-xs text-slate-500">
 								Creado:{" "}
-								{new Date(category.createdAt).toLocaleDateString("es-ES")}
+								{new Date(category.created_at).toLocaleDateString("es-ES")}
 							</span>
 							<div className="flex items-center space-x-2">
 								<button
@@ -290,7 +296,7 @@ export default function CategoriesSettings() {
 									<MdEdit className="w-4 h-4" />
 								</button>
 								<button
-									onClick={() => handleDelete(category.id)}
+									onClick={() => handleDelete(category.id as number)}
 									className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors duration-150"
 								>
 									<MdDelete className="w-4 h-4" />
@@ -455,9 +461,9 @@ export default function CategoriesSettings() {
 									/>
 									<div className="flex-1">
 										<div className="grid grid-cols-10 gap-2">
-											{colors.map((color) => (
+											{colors.map((color, index) => (
 												<button
-													key={color}
+													key={`${color}-${index}`}
 													type="button"
 													onClick={() => setFormData({ ...formData, color })}
 													className={`w-6 h-6 rounded-full border-2 transition-all duration-150 ${
